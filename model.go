@@ -290,6 +290,8 @@ func buildEntries(groups []ServiceGroup) []ui.ServiceEntry {
 				Href:       s.Href,
 				HasMonitor: s.SiteMonitor != "",
 				HasDocker:  s.Container != "",
+				Container:  s.Container,
+				Server:     s.Server,
 				Loading:    true,
 			}
 			entries = append(entries, entry)
@@ -299,12 +301,15 @@ func buildEntries(groups []ServiceGroup) []ui.ServiceEntry {
 }
 
 func statusCmds(client *Client, e ui.ServiceEntry) []tea.Cmd {
+	if client == nil {
+		return nil
+	}
 	var cmds []tea.Cmd
 	if e.HasMonitor {
 		cmds = append(cmds, checkSiteMonitor(client, e.GroupName, e.Name))
 	}
 	if e.HasDocker {
-		cmds = append(cmds, checkDockerStatus(client, e.GroupName, e.Name, e.DockerState, ""))
+		cmds = append(cmds, checkDockerStatus(client, e.GroupName, e.Name, e.Container, e.Server))
 	}
 	return cmds
 }

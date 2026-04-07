@@ -16,6 +16,8 @@ type ServiceEntry struct {
 	DockerState string
 	HasMonitor  bool
 	HasDocker   bool
+	Container   string
+	Server      string
 	Error       string
 	Loading     bool
 }
