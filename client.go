@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -139,7 +140,10 @@ func (c *Client) FetchServices() ([]ServiceGroup, error) {
 }
 
 func (c *Client) FetchSiteMonitor(groupName, serviceName string) (SiteMonitorResult, error) {
-	path := fmt.Sprintf("/api/siteMonitor?groupName=%s&serviceName=%s", groupName, serviceName)
+	path := "/api/siteMonitor?" + url.Values{
+		"groupName":   {groupName},
+		"serviceName": {serviceName},
+	}.Encode()
 	data, err := c.doGet(path)
 	if err != nil {
 		return SiteMonitorResult{}, err
@@ -189,7 +193,10 @@ func (c *Client) FetchMemory() (MemoryResponse, error) {
 }
 
 func (c *Client) FetchDisk(target string) (DiskResponse, error) {
-	path := fmt.Sprintf("/api/widgets/resources?type=disk&target=%s", target)
+	path := "/api/widgets/resources?" + url.Values{
+		"type":   {"disk"},
+		"target": {target},
+	}.Encode()
 	data, err := c.doGet(path)
 	if err != nil {
 		return DiskResponse{}, err

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -62,22 +63,14 @@ func renderBar(label string, pct float64, width int) string {
 	filled := int(pct / 100 * float64(width))
 	empty := width - filled
 
-	bar := ResourceBarFull.Render(repeat("█", filled)) +
-		ResourceBarEmpty.Render(repeat("░", empty))
+	bar := ResourceBarFull.Render(strings.Repeat("█", filled)) +
+		ResourceBarEmpty.Render(strings.Repeat("░", empty))
 
 	return fmt.Sprintf("  %s %s %3.0f%%",
 		ResourceLabelStyle.Render(label+":"),
 		bar,
 		pct,
 	)
-}
-
-func repeat(s string, n int) string {
-	result := ""
-	for i := 0; i < n; i++ {
-		result += s
-	}
-	return result
 }
 
 func formatBytes(bytesPerSec float64) string {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -48,16 +49,21 @@ func fetchResources(client *Client) tea.Cmd {
 		}
 
 		var res ui.Resources
+		var errs int
 
 		cpu, err := client.FetchCPU()
 		if err == nil {
 			res.CPUUsage = cpu.CPU.Usage
+		} else {
+			errs++
 		}
 
 		mem, err := client.FetchMemory()
 		if err == nil {
 			res.MemTotal = mem.Memory.Total
 			res.MemActive = mem.Memory.Active
+		} else {
+			errs++
 		}
 
 		disk, err := client.FetchDisk("/")
@@ -65,6 +71,8 @@ func fetchResources(client *Client) tea.Cmd {
 			res.DiskSize = disk.Drive.Size
 			res.DiskUsed = disk.Drive.Used
 			res.DiskMount = disk.Drive.Mount
+		} else {
+			errs++
 		}
 
 		net, err := client.FetchNetwork()
@@ -75,6 +83,12 @@ func fetchResources(client *Client) tea.Cmd {
 			if net.Network.TxSec != nil {
 				res.NetTxSec = *net.Network.TxSec
 			}
+		} else {
+			errs++
+		}
+
+		if errs == 4 {
+			return resourcesMsg{err: fmt.Errorf("all resource fetches failed")}
 		}
 
 		return resourcesMsg{resources: res}
