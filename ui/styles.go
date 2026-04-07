@@ -73,4 +73,8 @@ var (
 				Bold(true).
 				Foreground(ColorCyan).
 				MarginBottom(1)
+
+	SearchStyle = lipgloss.NewStyle().
+			Foreground(ColorCyan).
+			Padding(0, 1)
 )

@@ -62,11 +62,13 @@ type model struct {
 	lastRefresh time.Time
 	warning     string
 
-	cursor   int
-	focused  int // 0=services, 1=resources
-	width    int
-	height   int
-	showHelp bool
+	cursor      int
+	focused     int // 0=services, 1=resources
+	width       int
+	height      int
+	showHelp    bool
+	searching   bool
+	searchQuery string
 }
 
 func newModel(cfg Config, client *Client) model {
@@ -196,12 +198,47 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	// Search mode: capture typing
+	if m.searching {
+		switch msg.String() {
+		case "esc":
+			m.searching = false
+			m.searchQuery = ""
+			m.cursor = 0
+			return m, nil
+		case "enter":
+			m.searching = false
+			return m, nil
+		case "backspace":
+			if len(m.searchQuery) > 0 {
+				m.searchQuery = m.searchQuery[:len(m.searchQuery)-1]
+				m.cursor = 0
+			}
+			return m, nil
+		case "ctrl+c":
+			return m, tea.Quit
+		default:
+			if msg.Type == tea.KeyRunes {
+				m.searchQuery += string(msg.Runes)
+				m.cursor = 0
+			}
+			return m, nil
+		}
+	}
+
 	switch msg.String() {
 	case "q", "ctrl+c":
 		return m, tea.Quit
 
+	case "/":
+		m.searching = true
+		m.searchQuery = ""
+		m.cursor = 0
+		return m, nil
+
 	case "j", "down":
-		if m.cursor < len(m.entries)-1 {
+		filtered := m.filteredEntries()
+		if m.cursor < len(filtered)-1 {
 			m.cursor++
 		}
 		return m, nil
@@ -217,8 +254,9 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "enter":
-		if m.cursor < len(m.entries) && m.entries[m.cursor].Href != "" {
-			return m, openURL(m.entries[m.cursor].Href)
+		filtered := m.filteredEntries()
+		if m.cursor < len(filtered) && filtered[m.cursor].Href != "" {
+			return m, openURL(filtered[m.cursor].Href)
 		}
 		return m, nil
 
@@ -239,6 +277,21 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m model) filteredEntries() []ui.ServiceEntry {
+	if m.searchQuery == "" {
+		return m.entries
+	}
+	query := strings.ToLower(m.searchQuery)
+	var filtered []ui.ServiceEntry
+	for _, e := range m.entries {
+		if strings.Contains(strings.ToLower(e.Name), query) ||
+			strings.Contains(strings.ToLower(e.GroupName), query) {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
+}
+
 func (m model) View() string {
 	if m.width == 0 {
 		return "Loading..."
@@ -248,7 +301,7 @@ func (m model) View() string {
 		return renderHelp(m.width, m.height)
 	}
 
-	header := ui.RenderHeader(m.width, m.lastRefresh, m.warning)
+	header := ui.RenderHeader(m.width, m.lastRefresh, m.warning, m.searchQuery)
 	footer := ui.RenderFooter(m.width)
 
 	headerHeight := lipgloss.Height(header)
@@ -258,19 +311,21 @@ func (m model) View() string {
 		contentHeight = 1
 	}
 
+	visible := m.filteredEntries()
+
 	var content string
 	if m.width >= 80 {
 		// Side-by-side layout
 		resourceWidth := 30
 		serviceWidth := m.width - resourceWidth
-		services := ui.RenderServices(m.entries, m.cursor, serviceWidth, contentHeight)
+		services := ui.RenderServices(visible, m.cursor, serviceWidth, contentHeight)
 		resources := ui.RenderResources(m.resources, resourceWidth, contentHeight)
 		content = lipgloss.JoinHorizontal(lipgloss.Top, services, resources)
 	} else {
 		// Stacked layout
 		servicesHeight := contentHeight * 2 / 3
 		resourcesHeight := contentHeight - servicesHeight
-		services := ui.RenderServices(m.entries, m.cursor, m.width, servicesHeight)
+		services := ui.RenderServices(visible, m.cursor, m.width, servicesHeight)
 		resources := ui.RenderResources(m.resources, m.width, resourcesHeight)
 		content = lipgloss.JoinVertical(lipgloss.Left, services, resources)
 	}
@@ -341,6 +396,8 @@ func renderHelp(width, height int) string {
 		"  j / Down    Move cursor down",
 		"  k / Up      Move cursor up",
 		"  Enter       Open service URL",
+		"  /           Search services",
+		"  Esc         Clear search",
 		"  Tab         Switch focus (services/resources)",
 		"  r           Force refresh all",
 		"  ?           Toggle this help",

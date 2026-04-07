@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func RenderHeader(width int, lastRefresh time.Time, warning string) string {
+func RenderHeader(width int, lastRefresh time.Time, warning string, searchQuery string) string {
 	title := HeaderStyle.Render("Homepage TUI")
 
 	var right string
@@ -24,5 +24,12 @@ func RenderHeader(width int, lastRefresh time.Time, warning string) string {
 	}
 	padding := lipgloss.NewStyle().Width(gap).Render("")
 
-	return lipgloss.JoinHorizontal(lipgloss.Top, title, padding, right)
+	header := lipgloss.JoinHorizontal(lipgloss.Top, title, padding, right)
+
+	if searchQuery != "" {
+		searchBar := SearchStyle.Render("/ " + searchQuery + "█")
+		header = lipgloss.JoinVertical(lipgloss.Left, header, searchBar)
+	}
+
+	return header
 }
