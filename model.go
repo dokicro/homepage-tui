@@ -284,15 +284,17 @@ func buildEntries(groups []ServiceGroup) []ui.ServiceEntry {
 	var entries []ui.ServiceEntry
 	for _, g := range groups {
 		for _, s := range g.Services {
+			hasMonitor := s.SiteMonitor != ""
+			hasDocker := s.Container != ""
 			entry := ui.ServiceEntry{
 				GroupName:  g.Name,
 				Name:       s.Name,
 				Href:       s.Href,
-				HasMonitor: s.SiteMonitor != "",
-				HasDocker:  s.Container != "",
+				HasMonitor: hasMonitor,
+				HasDocker:  hasDocker,
 				Container:  s.Container,
 				Server:     s.Server,
-				Loading:    true,
+				Loading:    hasMonitor || hasDocker,
 			}
 			entries = append(entries, entry)
 		}
