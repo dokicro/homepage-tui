@@ -5,7 +5,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"homepage-tui/ui"
+	"github.com/dokicro/homepage-tui/ui"
 )
 
 func fetchServices(client *Client) tea.Cmd {

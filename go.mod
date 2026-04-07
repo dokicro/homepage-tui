@@ -1,4 +1,4 @@
-module homepage-tui
+module github.com/dokicro/homepage-tui
 
 go 1.25.1
 

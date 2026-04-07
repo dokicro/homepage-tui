@@ -9,7 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"homepage-tui/ui"
+	"github.com/dokicro/homepage-tui/ui"
 )
 
 // Message types
