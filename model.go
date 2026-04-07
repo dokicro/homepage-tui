@@ -48,18 +48,6 @@ type tickResourceMsg time.Time
 type tickHashMsg time.Time
 type urlOpenedMsg struct{}
 
-// Stubs — replaced by poller.go in Task 6
-func fetchServices(client *Client) tea.Cmd                                          { return nil }
-func fetchResources(client *Client) tea.Cmd                                         { return nil }
-func fetchHash(client *Client) tea.Cmd                                              { return nil }
-func tickService(d time.Duration) tea.Cmd                                           { return nil }
-func tickResource(d time.Duration) tea.Cmd                                          { return nil }
-func tickHash(d time.Duration) tea.Cmd                                              { return nil }
-func checkSiteMonitor(client *Client, groupName, serviceName string) tea.Cmd        { return nil }
-func checkDockerStatus(client *Client, groupName, serviceName, container, server string) tea.Cmd {
-	return nil
-}
-
 // Model
 
 type model struct {
