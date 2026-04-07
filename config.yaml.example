@@ -1,0 +1,18 @@
+# Homepage TUI configuration
+# Copy this file to config.yaml and adjust to your setup.
+
+# URL of your Homepage instance (required)
+homepage_url: http://homepage.local:3000
+
+# How often to refresh service status (default: 30s)
+refresh_interval: 30s
+
+# Optional authentication
+# auth:
+#   # Basic auth (if Homepage is behind a reverse proxy with basic auth)
+#   username: ""
+#   password: ""
+#   # Custom headers (API keys, bearer tokens, etc.)
+#   headers:
+#     X-Api-Key: ""
+#     Authorization: "Bearer your-token-here"
