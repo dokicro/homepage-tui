@@ -20,6 +20,12 @@ A terminal dashboard for [gethomepage/homepage](https://github.com/gethomepage/h
 go install github.com/dokicro/homepage-tui@latest
 ```
 
+Make sure `~/go/bin` is in your PATH:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"  # add to your .bashrc / .zshrc
+```
+
 Or build from source:
 
 ```bash
