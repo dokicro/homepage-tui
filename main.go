@@ -1,3 +1,6 @@
+// Homepage TUI is a terminal dashboard for gethomepage/homepage.
+// It connects to a running Homepage instance via its API and displays
+// live service status and system resources in the terminal.
 package main
 
 import (
